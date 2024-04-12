@@ -5,10 +5,11 @@ from typing import Any
 import requests
 import streamlit as st
 from streamlit_tree_select import tree_select
+from .config import Settings
 
 st.set_page_config(layout="wide")
 
-backend_base_path = os.environ["BACKEND_BASE_PATH"]
+settings = Settings()
 
 st.header(
     "Sample Choreo RAG application",
@@ -23,7 +24,7 @@ def populate_documents(
 ) -> list[dict[str, str, None | list[Any]]]:
     for collecion in collections:
         resp = requests.get(
-            f"{backend_base_path}/collection/{collecion['value']}",
+            f"{settings.backend_base_path}/collection/{collecion['value']}",
             params={"with_documents": True},
             timeout=12000
         ).json()
@@ -43,7 +44,7 @@ def get_collections(populate_docs: bool = False) -> list[dict[str, str, None | l
     collections: list[dict[str, str, list[Any]] | None] = []
 
     def get_data():
-        url = f"{backend_base_path}/collection/list"
+        url = f"{settings.backend_base_path}/collection/list"
         page_size = 10
         session = requests.session()
         first_page = session.get(
@@ -98,7 +99,7 @@ def get_assistance_response(
     def qa(mode: str, identifier: str):
         try:
             response = requests.post(
-                url=f"{backend_base_path}/chat",
+                url=f"{settings.backend_base_path}/chat",
                 json={
                     "mode": mode,
                     "id_type": "name",
@@ -128,7 +129,7 @@ def get_assistance_response(
 
 def upload_document(collection: str, document) -> requests.Response:
     return requests.post(
-        url=f"{backend_base_path}/document/upload",
+        url=f"{settings.backend_base_path}/document/upload",
         data={"collection": collection},
         files=[("file", (document.name, document.getvalue()))],
     )
