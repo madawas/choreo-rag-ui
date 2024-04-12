@@ -8,7 +8,7 @@ COPY ./* /home/app
 
 RUN mkdir uploads
 
-RUN pip install -r /home/requirements.txt
+RUN pip install -r /home/app/requirements.txt
 
 RUN addgroup --gid 10016 choreo && \
     adduser --system --no-create-home --uid 10020 --ingroup choreo raguser
