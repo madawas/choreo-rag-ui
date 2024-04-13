@@ -218,22 +218,33 @@ def main():
                 collections,
                 format_func=lambda collection: collection["label"].capitalize(
                 ),
+                placeholder="Select a collection",
             )
-        with col2:
-            selected_document = st.selectbox(
-                "Filter by document:",
-                selected_collection["children"],
-                format_func=lambda document: document["label"].capitalize(),
-                index=None,
-                placeholder="Filter by document",
-            )
+        if selected_collection is not None:
+            with col2:
+                selected_document = st.selectbox(
+                    "Filter by document:",
+                    selected_collection["children"],
+                    format_func=lambda document: document["label"].capitalize(),
+                    index=None,
+                    placeholder="Filter by document",
+                )
 
     chat_container = st.container()
 
     with chat_container:
         chat_col, sources_col = st.columns([5, 2])
         if "messages" not in st.session_state:
-            st.session_state.messages = []
+            st.session_state.messages = [
+                {
+                    "role": "assistant", 
+                    "content": """
+                    ### Welcome to the Retrieval Augmented Generation
+                    
+                    To start make sure to navigate to the settings page and update the required settings.
+                    """
+                }
+            ]
 
         for message in st.session_state.messages:
             with chat_col:
