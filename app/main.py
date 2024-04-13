@@ -5,7 +5,7 @@ from typing import Any
 import requests
 import streamlit as st
 from streamlit_tree_select import tree_select
-from .config import Settings
+from config import Settings
 
 st.set_page_config(layout="wide")
 
@@ -22,22 +22,25 @@ st.header(
 def populate_documents(
     collections: list[dict[str, str, list[Any]] | None]
 ) -> list[dict[str, str, None | list[Any]]]:
-    for collecion in collections:
-        resp = requests.get(
-            f"{settings.backend_base_path}/collection/{collecion['value']}",
-            params={"with_documents": True},
-            timeout=12000
-        ).json()
+    try:
+        for collecion in collections:
+            resp = requests.get(
+                f"{settings.backend_base_path}/collection/{collecion['value']}",
+                params={"with_documents": True},
+                timeout=12000
+            ).json()
 
-        if "documents" in resp:
-            doc_list = resp["documents"]
-            if doc_list and len(doc_list) > 0:
-                children: list[dict[str, Any]] = []
-                for doc in doc_list:
-                    children.append(
-                        {"label": doc, "value": doc, "showCheckbox": False})
-                collecion["children"] = children
-    return collections
+            if "documents" in resp:
+                doc_list = resp["documents"]
+                if doc_list and len(doc_list) > 0:
+                    children: list[dict[str, Any]] = []
+                    for doc in doc_list:
+                        children.append(
+                            {"label": doc, "value": doc, "showCheckbox": False})
+                    collecion["children"] = children
+        return collections
+    except:
+        return None
 
 
 def get_collections(populate_docs: bool = False) -> list[dict[str, str, None | list[Any]]]:
@@ -62,21 +65,23 @@ def get_collections(populate_docs: bool = False) -> list[dict[str, str, None | l
             ).json()
             yield next_page
 
-    for page in get_data():
-        if "colelctions" in page:
-            for collection in page["collections"]:
-                collections.append(
-                    {
-                        "label": collection["name"].capitalize(),
-                        "value": collection["uuid"],
-                        "showCheckbox": False
-                    }
-                )
+    try:
+        for page in get_data():
+            if "colelctions" in page:
+                for collection in page["collections"]:
+                    collections.append(
+                        {
+                            "label": collection["name"].capitalize(),
+                            "value": collection["uuid"],
+                            "showCheckbox": False
+                        }
+                    )
 
-    if populate_docs:
-        return populate_documents(collections)
-    collections.sort(key=lambda c: c["label"])
-    return collections
+        if populate_docs:
+            return populate_documents(collections)
+        collections.sort(key=lambda c: c["label"])
+    finally:
+        return collections
 
 
 def __format_response_markdown(json_resp) -> tuple[str, set | None]:
