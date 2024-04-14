@@ -13,7 +13,7 @@ RUN addgroup --gid 10016 choreo && \
     adduser --system --no-create-home --uid 10020 --ingroup choreo raguser
 USER 10020
 
-EXPOSE 8501
+EXPOSE 8501 80 443
 
 # HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
